@@ -1,9 +1,8 @@
-use crate::transaction::Transaction;
+use crate::{services::hasher::Hasher, transaction::Transaction};
 use chrono::Utc;
 use serde::{Deserialize, Serialize};
-use sha2::{Digest, Sha256};
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Clone)]
 pub struct Block {
     pub index: u32,
     pub timestamp: u128,
@@ -21,24 +20,20 @@ impl Block {
         let difficulty = String::from("000");
         let transaction: Vec<Transaction> = vec![];
 
-        let mut hasher = Sha256::new();
-        hasher.update(index.to_string());
-        hasher.update(current_time.to_string());
-        hasher.update(&previous_hash);
-        hasher.update(nonce.to_string());
-        hasher.update(&difficulty.to_string());
-        hasher.update(serde_json::to_string(&transaction).unwrap());
-
-        let hash = format!("{:x}", hasher.finalize());
-
-        Self {
-            index: index,
+        let mut block_objects = Block {
+            index,
             timestamp: current_time as u128,
-            previous_hash: previous_hash,
-            hash: hash,
-            nonce: nonce,
-            difficulty: difficulty,
-            transaction: transaction,
-        }
+            previous_hash,
+            hash: String::from("temp"),
+            nonce,
+            difficulty,
+            transaction,
+        };
+
+        let (nonce, hash) = Hasher::calculate_hash_with_prefix(&block_objects);
+        block_objects.hash = hash;
+        block_objects.nonce = nonce;
+
+        block_objects
     }
 }
