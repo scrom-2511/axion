@@ -1,3 +1,4 @@
+use chrono::Utc;
 use sha2::{Digest, Sha256};
 
 use crate::{block::Block, transaction::{self, Transaction, TxInput, TxOutput}};
@@ -45,10 +46,13 @@ impl Hasher {
             ));
         }
 
+        let current_time = Utc::now().to_string();
+
         let data = serde_json::to_string(&(clean_inputs, clean_outputs)).unwrap();
 
         let mut hasher = Sha256::new();
         hasher.update(data);
+        hasher.update(current_time);
         let hash = format!("{:x}", hasher.finalize());
 
         hash
