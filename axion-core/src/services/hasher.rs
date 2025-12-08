@@ -1,7 +1,10 @@
 use chrono::Utc;
 use sha2::{Digest, Sha256};
 
-use crate::{block::Block, transaction::{self, Transaction, TxInput, TxOutput}};
+use crate::{
+    block::Block,
+    transaction::{self, Transaction, TxInput, TxOutput},
+};
 
 pub struct Hasher {}
 
@@ -18,7 +21,7 @@ impl Hasher {
             hasher.update(nonce.to_string());
             hasher.update(serde_json::to_string(&block_objects.transaction).unwrap());
 
-            let hash = format!("{:x}", hasher.finalize());
+            let hash = bs58::encode(hasher.finalize()).into_string();
             if hash.starts_with(&block_objects.difficulty) {
                 return (nonce, hash);
             }
@@ -30,20 +33,13 @@ impl Hasher {
         let mut clean_inputs = vec![];
 
         for input in &transaction.inputs {
-            clean_inputs.push((
-                &input.prev_tx_id,
-                input.output_index,
-                &input.pub_key,
-            ));
+            clean_inputs.push((&input.prev_tx_id, input.output_index, &input.pub_key));
         }
 
         let mut clean_outputs = vec![];
 
         for output in &transaction.outputs {
-            clean_outputs.push((
-                &output.recepient_pubkey,
-                output.amount,
-            ));
+            clean_outputs.push((&output.recepient_pubkey, output.amount));
         }
 
         let current_time = Utc::now().to_string();
@@ -53,7 +49,7 @@ impl Hasher {
         let mut hasher = Sha256::new();
         hasher.update(data);
         hasher.update(current_time);
-        let hash = format!("{:x}", hasher.finalize());
+        let hash = bs58::encode(hasher.finalize()).into_string();
 
         hash
     }
