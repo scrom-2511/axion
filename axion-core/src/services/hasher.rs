@@ -1,6 +1,6 @@
 use sha2::{Digest, Sha256};
 
-use crate::block::Block;
+use crate::{block::Block, transaction::{self, Transaction, TxInput, TxOutput}};
 
 pub struct Hasher {}
 
@@ -23,5 +23,34 @@ impl Hasher {
             }
             nonce += 1;
         }
+    }
+
+    pub fn calculate_txid(transaction: Transaction) -> String {
+        let mut clean_inputs = vec![];
+
+        for input in &transaction.inputs {
+            clean_inputs.push((
+                &input.prev_tx_id,
+                input.output_index,
+                &input.pub_key,
+            ));
+        }
+
+        let mut clean_outputs = vec![];
+
+        for output in &transaction.outputs {
+            clean_outputs.push((
+                &output.recepient_pubkey,
+                output.amount,
+            ));
+        }
+
+        let data = serde_json::to_string(&(clean_inputs, clean_outputs)).unwrap();
+
+        let mut hasher = Sha256::new();
+        hasher.update(data);
+        let hash = format!("{:x}", hasher.finalize());
+
+        hash
     }
 }
