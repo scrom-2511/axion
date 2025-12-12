@@ -3,7 +3,7 @@ use sha2::{Digest, Sha256};
 
 use crate::{
     block::Block,
-    transaction::{self, Transaction, TxInput, TxOutput},
+    transaction::{Transaction},
 };
 
 pub struct Hasher {}
@@ -29,16 +29,16 @@ impl Hasher {
         }
     }
 
-    pub fn calculate_txid(transaction: Transaction) -> String {
+    pub fn calculate_txid(tx: Transaction) -> String {
         let mut clean_inputs = vec![];
 
-        for input in &transaction.inputs {
-            clean_inputs.push((&input.prev_tx_id, input.output_index, &input.pub_key));
+        for input in &tx.inputs {
+            clean_inputs.push((&input.prev_tx_id, input.output_index));
         }
 
         let mut clean_outputs = vec![];
 
-        for output in &transaction.outputs {
+        for output in &tx.outputs {
             clean_outputs.push((&output.recepient_pubkey, output.amount));
         }
 
