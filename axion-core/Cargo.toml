@@ -1,5 +1,5 @@
 [package]
-name = "axion-core"
+name = "axion_core"
 version = "0.1.0"
 edition = "2024"
 
@@ -12,3 +12,7 @@ ed25519-dalek = { version = "2.2.0", features = ["serde"] }
 thiserror = "2.0.17"
 hex = "0.4.3"
 bs58 = "0.5.1"
+
+[lib]
+name = "axion_core"
+path = "src/lib.rs"
