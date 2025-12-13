@@ -1,3 +1,5 @@
+use std::cmp::Ordering;
+
 use ed25519_dalek::{
     Signature, SigningKey, VerifyingKey,
     ed25519::{signature::SignerMut},
@@ -23,9 +25,30 @@ pub struct TxOutput {
 pub struct Transaction {
     pub txid: String,
     pub signature: Signature,
+    pub fee: u32,
     pub inputs: Vec<TxInput>,
     pub outputs: Vec<TxOutput>,
 }
+
+impl Ord for Transaction {
+    fn cmp(&self, other: &Self) -> Ordering {
+        self.fee.cmp(&other.fee).then(self.txid.cmp(&other.txid))
+    }
+}
+
+impl PartialOrd for Transaction {
+    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
+        Some(self.cmp(other))
+    }
+}
+
+impl PartialEq for Transaction {
+    fn eq(&self, other: &Self) -> bool {
+        self.txid == other.txid
+    }
+}
+
+impl Eq for Transaction {}
 
 impl Transaction {
     pub fn string_to_u8_32_converter(string_data: String) -> Result<[u8; 32], AxionError> {
@@ -36,36 +59,37 @@ impl Transaction {
     }
 
     pub fn sign_transaction(
-        transaction: &mut Transaction,
+        tx: &mut Transaction,
         private_key: String,
     ) -> Result<(), AxionError> {
+
         let key_bytes = Self::string_to_u8_32_converter(private_key)?;
 
         let mut signing_key = SigningKey::from_bytes(&key_bytes);
 
         let verifying_key = bs58::encode(signing_key.verifying_key()).into_string();
 
-        for input in transaction.inputs.iter_mut() {
+        for input in tx.inputs.iter_mut() {
             if verifying_key != input.pub_key {
                 return Err(AxionError::UnauthorizedSigner);
             }
         }
 
-        let txid = Hasher::calculate_txid(transaction.clone());
+        let txid = Hasher::calculate_txid(tx.clone());
         let signature = signing_key.sign(txid.as_bytes());
-        transaction.signature = signature;
+        tx.signature = signature;
 
         Ok(())
     }
 
     pub fn verify_transaction(
-        transaction: &mut Transaction,
+        tx: &mut Transaction,
         public_key: String,
     ) -> Result<bool, AxionError> {
         let key_bytes = Self::string_to_u8_32_converter(public_key)?;
 
         let verifying_key = VerifyingKey::from_bytes(&key_bytes).unwrap();
-        match verifying_key.verify_strict(transaction.txid.as_bytes(), &transaction.signature) {
+        match verifying_key.verify_strict(tx.txid.as_bytes(), &tx.signature) {
             Ok(()) => {}
             Err(_) => return Err(AxionError::VerificationFailed),
         }
