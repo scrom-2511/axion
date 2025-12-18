@@ -5,6 +5,7 @@ pub struct Miner {
     pub mempool: Mempool,
     pub utxo_store: UtxoStore,
     pub block_height: u128,
+    pub block_hash: String,
     pub reward_address: String,
     pub blockchain: Blockchain
 }
