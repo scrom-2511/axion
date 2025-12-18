@@ -1,9 +1,12 @@
+use serde::{Deserialize, Serialize};
+
+#[derive(Debug, Serialize, Deserialize)]
 pub struct BlockHeader {
-    block_num: u128,
-    previous_hash: String,
-    timestamp: u128,
-    nonce: u16,
-    difficulty: u8,
-    merkle_root: String,
-    hash: String
+    pub block_num: u128,
+    pub previous_hash: String,
+    pub timestamp: u128,
+    pub nonce: u16,
+    pub difficulty: u8,
+    pub merkle_root: String,
+    pub hash: String
 }

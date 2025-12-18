@@ -1,10 +1,10 @@
 use crate::{blockchain::Blockchain, mempool::Mempool, utxo_store::UtxoStore};
 
 pub struct Miner {
-    id: String,
-    mempool: Mempool,
-    utxo_store: UtxoStore,
-    block_height: u128,
-    reward_address: String,
-    blockchain: Blockchain
+    pub id: String,
+    pub mempool: Mempool,
+    pub utxo_store: UtxoStore,
+    pub block_height: u128,
+    pub reward_address: String,
+    pub blockchain: Blockchain
 }
