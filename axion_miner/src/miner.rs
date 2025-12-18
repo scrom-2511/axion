@@ -1,9 +1,13 @@
+use serde::{Deserialize, Serialize};
+
 use crate::{blockchain::Blockchain, mempool::Mempool, utxo_store::UtxoStore};
 
+#[derive(Debug, Serialize, Deserialize)]
 pub struct LatestBlockDetails {
     pub block_height: u128,
     pub block_hash: String,
 }
+
 pub struct Miner {
     pub id: String,
     pub mempool: Mempool,
