@@ -5,3 +5,7 @@ edition = "2024"
 
 [dependencies]
 ed25519-dalek = "2.2.0"
+
+[lib]
+name = "axion_core"
+path = "src/lib.rs"
