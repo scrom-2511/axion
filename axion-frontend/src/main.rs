@@ -1,6 +1,8 @@
 use std::{env::consts::OS, fs::write};
 
 use clap::Parser;
+use ed25519_dalek::{Signature, SigningKey};
+use rand::{Rng, rngs::ThreadRng};
 
 #[derive(Parser, Debug)]
 enum Args {
@@ -14,7 +16,7 @@ fn main() {
     match args {
         Args::Keygen { private_key } => match private_key {
             Some(pri_key) => {keygen_using_pri_key(pri_key);}
-            None => {}
+            None => {keygen();}
         },
         Args::Send {
             rec_pub_key,
@@ -38,4 +40,14 @@ fn keygen_using_pri_key(pri_key: String) {
         Ok(_) => {},
         Err(e)=>{eprintln!("There was an error: \n {}", e)}
     }
+}
+
+fn keygen() {
+    let random_data: [u8;32] = rand::random();
+    
+    let pri_key = SigningKey::from_bytes(&random_data);
+
+    let pri_key_string = bs58::encode(pri_key.as_bytes()).into_string();
+
+    keygen_using_pri_key(pri_key_string);
 }
