@@ -62,14 +62,35 @@ checksum = "1505bd5d3d116872e7271a6d4e16d81d0c8570876c8de68093a09ac269d8aac0"
 name = "axion-frontend"
 version = "0.1.0"
 dependencies = [
+ "axion_core",
+ "axion_miner",
  "bs58",
  "clap",
  "dirs",
  "ed25519-dalek",
  "rand",
  "reqwest",
+ "thiserror",
  "tokio-tungstenite",
  "url",
+]
+
+[[package]]
+name = "axion_core"
+version = "0.1.0"
+dependencies = [
+ "ed25519-dalek",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
+name = "axion_miner"
+version = "0.1.0"
+dependencies = [
+ "axion_core",
+ "serde",
+ "serde_json",
 ]
 
 [[package]]
