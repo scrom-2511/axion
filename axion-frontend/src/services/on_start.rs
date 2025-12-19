@@ -44,11 +44,14 @@ impl OnStart {
             }
         }
 
-        let (block_hash, block_height) = string.split_once(",").unwrap();
+        let (block_hash, block_height) = match string.split_once(",") {
+            Some((block_hash, block_height)) => (block_hash, block_height),
+            None => return Err(AxionFrontendError::BlockHeadersNotFound),
+        };
 
         let latest_block = LatestBlockDetails {
             block_hash: block_hash.to_owned(),
-            block_height: block_height.to_owned().parse().unwrap(),
+            block_height: block_height.to_owned().parse().map_err(|_| AxionFrontendError::BlockHeadersNotFound)?,
         };
         Ok(latest_block)
     }
