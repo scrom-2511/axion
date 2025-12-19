@@ -49,18 +49,19 @@ impl OnStart {
             None => return Err(AxionFrontendError::BlockHeadersNotFound),
         };
 
-        let latest_block = LatestBlockDetails {
+        let latest_block_details = LatestBlockDetails {
             block_hash: block_hash.to_owned(),
             block_height: block_height
                 .to_owned()
                 .parse()
                 .map_err(|_| AxionFrontendError::BlockHeadersNotFound)?,
         };
-        Ok(latest_block)
+        Self::save_latest_block(&latest_block_details)?;
+        Ok(latest_block_details)
     }
 
     pub fn save_latest_block(
-        latest_block_details: LatestBlockDetails,
+        latest_block_details: &LatestBlockDetails,
     ) -> Result<(), AxionFrontendError> {
         let path = CommonService::get_home_dir_path_with_file("latest_block.json")?;
         let latest_block_details_json = serde_json::to_string_pretty(&latest_block_details)?;
