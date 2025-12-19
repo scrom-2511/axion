@@ -1,8 +1,8 @@
-use std::collections::HashMap;
+use std::{collections::HashMap, fs};
 
 use axion_miner::miner::LatestBlockDetails;
 
-use crate::services::errors_frontend::AxionFrontendError;
+use crate::services::{common::CommonService, errors_frontend::AxionFrontendError};
 
 pub struct OnStart;
 
@@ -51,8 +51,23 @@ impl OnStart {
 
         let latest_block = LatestBlockDetails {
             block_hash: block_hash.to_owned(),
-            block_height: block_height.to_owned().parse().map_err(|_| AxionFrontendError::BlockHeadersNotFound)?,
+            block_height: block_height
+                .to_owned()
+                .parse()
+                .map_err(|_| AxionFrontendError::BlockHeadersNotFound)?,
         };
         Ok(latest_block)
+    }
+
+    pub fn save_latest_block(
+        latest_block_details: LatestBlockDetails,
+    ) -> Result<(), AxionFrontendError> {
+        let path = CommonService::get_home_dir_path_with_file("latest_block.json")?;
+        let latest_block_details_json = serde_json::to_string_pretty(&latest_block_details)?;
+        match fs::write(path, latest_block_details_json) {
+            Ok(_) => {}
+            Err(_) => return Err(AxionFrontendError::UnableToWriteLatestBlockDetails),
+        };
+        Ok(())
     }
 }
